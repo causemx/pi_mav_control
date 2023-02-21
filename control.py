@@ -91,9 +91,9 @@ def set_mode(args):
 
     while True:
         try:
-            print("retry")
             ack_msg = master.recv_match(type='COMMAND_ACK', blocking=True, timeout=1)
         except:
+            print("can not receive ack")
             break
         
         time.sleep(0.3)

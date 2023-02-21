@@ -3,12 +3,12 @@ import argparse
 import time
 
 
-
 def connection(host, port, retry=3):
     _retry = 0
     while True:
         try:
-            master = mavutil.mavlink_connection('udpin:{}:{}'.format(host, port))
+            master = mavutil.mavlink_connection('/dev/serial0', baud=921600)
+            # master = mavutil.mavlink_connection('udpin:{}:{}'.format(host, port))
             master.wait_heartbeat()
             print('connected')
             return master
@@ -65,17 +65,17 @@ def takeoff(args):
         mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 0, 0, 0, 0, 0, 0, args.height)
 
     while True:
-        msg = master.recv_match(type='STATUSTEXT', blocking=True)
+        # msg = master.recv_match(type='STATUSTEXT', blocking=True)
+        msg = master.recv_match(type='COMMAND_ACK', blocking=True)
         print(msg)
         break
 
 def mode(args):
     while True:
         msg = master.recv_match(type='HEARTBEAT', blocking = True)
-        if msg:
-            mode = mavutil.mode_string_v10(msg)
-            print(mode)
-            break
+        mode = mavutil.mode_string_v10(msg)
+        print(mode)
+        break
 
 def set_mode(args):
     if args.mode not in master.mode_mapping():
@@ -90,10 +90,13 @@ def set_mode(args):
         mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,mode_id)
 
     while True:
-        # Wait for ACK command
-        # Would be good to add mechanism to avoid endlessly blocking
-        # if the autopilot sends a NACK or never receives the message
-        ack_msg = master.recv_match(type='COMMAND_ACK', blocking=True)
+        try:
+            print("retry")
+            ack_msg = master.recv_match(type='COMMAND_ACK', blocking=True, timeout=1)
+        except:
+            break
+        
+        time.sleep(0.3)
         ack_msg = ack_msg.to_dict()
 
         # Continue waiting if the acknowledged command is not `set_mode`

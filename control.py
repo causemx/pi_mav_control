@@ -54,8 +54,11 @@ def main(args) -> int:
     parser_setmode.add_argument("mode", type=str, help="Enter expected mode here.")
     parser_setmode.set_defaults(func=set_mode)
     
-    parser_move = subparser.add_parser("move", help="Make UAV moving [North, East, Up]")
-    parser_move.add_argument("movement", type=int, help="Move North n meters.")
+    parser_move = subparser.add_parser("move", help="Make UAV moving [East, North, Down] in local coord.")
+    parser_move.add_argument("movement", type=int, nargs='+', help="Move [east/west] [north/south] [down/up] for meters")
+    parser_move.add_argument("-e", "--east", type=int, default=0, help="Move east/west for n meters.")
+    parser_move.add_argument("-n", "--north", type=int, default=0, help="Move north/south for n meters.")
+    parser_move.add_argument("-d", "--down", type=int, default=0, help="Move down/Up for n meters.")
     parser_move.set_defaults(func=move)
 
     try:
@@ -79,11 +82,17 @@ def takeoff(args) -> None:
     master.mav.command_long_send(master.target_system, master.target_component, \
         mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 0, 0, 0, 0, 0, 0, args.height)
 
+    _retry = 0
     while True:
+        _retry = _retry + 1
         # msg = master.recv_match(type='STATUSTEXT', blocking=True)
         msg = master.recv_match(type='COMMAND_ACK', blocking=True, timeout=1)
-        print(msg)
-        break
+        if msg: 
+            print(msg)
+            break
+        if _retry > 3:
+            print("Time out, can not recive ACK.")
+            break
 
 
 def mode(args) -> None:
@@ -126,7 +135,7 @@ def set_mode(args) -> None:
 def move(args) -> None:
     master.mav.send(mavutil.mavlink.MAVLink_set_position_target_local_ned_message(10, master.target_system, \
         master.target_component, mavutil.mavlink.MAV_FRAME_LOCAL_NED, \
-            int(0b010111111000), 0, args.movement, -10, 0, 0, 0, 0, 0, 0, 0, 0))
+            int(0b010111111000), args.movement[0], args.movement[1], args.movement[2], 0, 0, 0, 0, 0, 0, 0, 0))
     
     while True:
         msg = master.recv_match(

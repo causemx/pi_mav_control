@@ -1,9 +1,17 @@
+from . import server
 from ctl import control
 import argparse
+
 
 def main(args) -> int:
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers()
+    
+    parser_connect = subparser.add_parser("server", help="start server on UAV")
+    parser_connect.add_argument("connect_info", nargs='+', help="For serial port connect, input: 'serial' [device] [baudrate]; \
+        For UDP input connect, input: 'udp' [host] [port].") 
+    parser_connect.set_defaults(func=control.connect)
+
 
     parser_connect = subparser.add_parser("connect", help="Connect to UAV.")
     parser_connect.add_argument("connect_info", nargs='+', help="For serial port connect, input: 'serial' [device] [baudrate]; \
@@ -42,7 +50,7 @@ def main(args) -> int:
 
 if __name__ == "__main__":
     while True:
-        msg = input(" -> ")
+        msg = input(" [Server]: -> ")
         error_code = main(msg.split())
         if error_code != 0:
             break

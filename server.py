@@ -1,4 +1,5 @@
 import argparse
+import sys
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 from ctl import control
@@ -59,10 +60,10 @@ class Server:
     def handle_args(self, args):
         parser = argparse.ArgumentParser()
         subparser = parser.add_subparsers()
-        parser_connect = subparser.add_parser("connect", help="connect to UAV")
+        """parser_connect = subparser.add_parser("connect", help="connect to UAV")
         parser_connect.add_argument("connect_info", nargs='+', help="For serial port connect, input: 'serial' [device] [baudrate]; \
             For UDP input connect, input: 'udp' [host] [port].") 
-        parser_connect.set_defaults(func=control.connect)
+        parser_connect.set_defaults(func=control.connect)"""
 
         parser_arm = subparser.add_parser("arm", help="Arming/Disarm UAV throttle.")
         parser_arm.add_argument('--isarm', type=int, default=1, help="1: arm, 0: disarm.")
@@ -104,5 +105,16 @@ class Server:
                 del self.clients[sock]
  
 if __name__ == "__main__":
+    print("Please connect to UAV first.")
+    while True:
+        msg = input(" -> ")
+        try:
+            ret = control.connect(msg.split())
+            if ret is 'connected':
+                break
+        except ConnectionError:
+            print("connection_error")
+            sys.exit(1)
+        
     server = Server()
     server.start("0.0.0.0", 5566)

@@ -1,30 +1,29 @@
 from pymavlink import mavutil
 import time
 
-def connect(args, retry=3):
+
+def connect(args, retry=3) -> str:
     global master
-    _args = args.connect_info
+    # _args = args.connect_info
     _retry = 0
     while True:
         try:
             #master = mavutil.mavlink_connection('/dev/serial0', baud=921600)
             #master = mavutil.mavlink_connection('udpin:{}:{}'.format(host, port))
-            if _args[0] == "serial":
-                master = mavutil.mavlink_connection(_args[1], baud=int(_args[2]))
-            elif _args[0] == "udp":
-                master = mavutil.mavlink_connection('udpin:{}:{}'.format(_args[1], _args[2]))
+            if args[1] == "serial":
+                master = mavutil.mavlink_connection(args[2], baud=int(args[3]))
+            elif args[1] == "udp":
+                master = mavutil.mavlink_connection('udpin:{}:{}'.format(args[2], args[3]))
             else:
-                print("Unknown connection type.")
-                break
+                return 'unknown_connection_type'
 
             master.wait_heartbeat()
-            print('connected')
-            break
+            return 'connected'
         except:
             print("retry...:{}".format(_retry))
             _retry = _retry + 1
             if _retry > retry:
-                print('Can not connected to uav.')
+                print('fail_to_connect_uav')
                 raise ConnectionError
             time.sleep(0.3)
 

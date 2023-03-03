@@ -1,4 +1,3 @@
-from . import server
 from ctl import control
 import argparse
 
@@ -50,7 +49,7 @@ def main(args) -> int:
 
 if __name__ == "__main__":
     while True:
-        msg = input(" [Server]: -> ")
+        msg = input(" -> ")
         error_code = main(msg.split())
         if error_code != 0:
             break

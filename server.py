@@ -110,7 +110,7 @@ if __name__ == "__main__":
         msg = input(" -> ")
         try:
             ret = control.connect(msg.split())
-            if ret is 'connected':
+            if ret == 'connected':
                 break
         except ConnectionError:
             print("connection_error")

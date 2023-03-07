@@ -1,6 +1,7 @@
 import select
 import sys
 import arg_parse
+import time
 from socket import socket, AF_INET, SOCK_STREAM
 from ctl import control
 
@@ -42,9 +43,9 @@ class Client:
             if len(ready_to_write) > 0:
                 pass
     
-    def handle_recv(self, recv):
-        print('received: {}'.format(recv))
-
+    def handle_recv(self, recv, delay=0):
+        print('received: {}, dalay: {}s'.format(recv, delay))
+        time.sleep(delay)
         try:
             args = arg_parse.parse(recv.split())
             args.func(args)

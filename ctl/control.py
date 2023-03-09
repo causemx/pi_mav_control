@@ -2,6 +2,17 @@ from pymavlink import mavutil
 import time
 
 
+class ControlError(Exception):
+ 
+    # Constructor or Initializer
+    def __init__(self, value):
+        self.value = value
+ 
+    # __str__ is to print() the value
+    def __str__(self):
+        return(repr(self.value))
+
+
 def connect(args, retry=3) -> str:
     global master
     # _args = args.connect_info
@@ -19,7 +30,7 @@ def connect(args, retry=3) -> str:
 
             master.wait_heartbeat()
             return 'connected'
-        except:
+        except ControlError:
             print("retry...:{}".format(_retry))
             _retry = _retry + 1
             if _retry > retry:
@@ -77,7 +88,7 @@ def set_mode(args) -> None:
     while True:
         try:
             ack_msg = master.recv_match(type='COMMAND_ACK', blocking=True, timeout=1)
-        except:
+        except ControlError:
             print("can not receive ack")
             break
         

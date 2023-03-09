@@ -15,7 +15,7 @@ class Client:
     def start(self, host, port):
         try:
             self.client.connect((host, port)) 
-        except:
+        except control.ControlError:
             raise ConnectionRefusedError 
 
 
@@ -49,7 +49,7 @@ class Client:
         try:
             args = arg_parse.parse(recv.split())
             args.func(args)
-        except:
+        except control.ControlError:
             pass
         return 0
 

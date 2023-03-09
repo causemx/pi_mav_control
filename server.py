@@ -16,8 +16,8 @@ class Server:
     def start(self, host="localhost", port=5566):
         try:
             self.server.bind((host, port))
-        except:
-            raise ConnectionError
+        except ConnectionError as err:
+            print("Encounting connection error: {}".format(str(err)))
 
         self.server.listen(5)
         print("Waiting for connection...")
@@ -61,7 +61,7 @@ class Server:
         try:
             args = arg_parse.parse(input)
             args.func(args)
-        except:
+        except control.ControlError:
             pass
         return 0
 
@@ -69,7 +69,7 @@ class Server:
         for sock in list(self.clients.keys()): # using list to avoid arise RuntimeError: dictionary changed size during iteration.
             try:
                 sock.send(bytes(prefix, "utf8")+msg)
-            except:
+            except ConnectionError:
                 # print(f"{clients[sock]} was disconnected")
                 sock.close()
                 del self.clients[sock]

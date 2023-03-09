@@ -6,7 +6,7 @@ def parse(args):
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers()
     """parser_connect = subparser.add_parser("connect", help="connect to UAV")
-    parser_connect.add_argument("connect_info", nargs='+', help="For serial port connect, input: 'serial' [device] [baudrate]; \
+    parser_connect.add_argument("connect_info", nargs='+', help="For serial port connect, input: 'serial' [device] [baudrate]; 
         For UDP input connect, input: 'udp' [host] [port].") 
     parser_connect.set_defaults(func=control.connect)"""
 
@@ -25,7 +25,7 @@ def parse(args):
     parser_setmode.add_argument("mode", type=str, help="Enter expected mode here.")
     parser_setmode.set_defaults(func=control.set_mode)
     
-    parser_move = subparser.add_parser("move", help="Make UAV moving [East, North, Down] in local coord.")
+    parser_move = subparser.add_parser("move", help="Make UAV moving [North/South, East/West, Down/Up] in local coord.")
     parser_move.add_argument("movement", type=int, nargs='+', help="Move [east/west] [north/south] [down/up] for meters")
     parser_move.add_argument("-e", "--east", type=int, default=0, help="Move east/west for n meters.")
     parser_move.add_argument("-n", "--north", type=int, default=0, help="Move north/south for n meters.")

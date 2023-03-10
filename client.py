@@ -2,8 +2,10 @@ import select
 import sys
 import arg_parse
 import time
+import const
 from socket import socket, AF_INET, SOCK_STREAM
 from ctl import control
+
 
 
 
@@ -46,16 +48,29 @@ class Client:
     def handle_recv(self, recv, delay=0):
         print('received: {}, dalay: {}s'.format(recv, delay))
         time.sleep(delay)
-        try:
-            args = arg_parse.parse(recv.split())
+        rs = recv.split()
+        args = None
+        if rs[0] == "mf":
+            args = arg_parse.parse(const.CLIENT_MOVE_FORWORD)
             args.func(args)
-        except control.ControlError:
-            pass
+        elif rs[0] == "mo":
+            args = arg_parse.parse(const.CLIENT_MOVE_ORIGIN)
+            args.func(args)
+        elif rs[0] == "mb":
+            args = arg_parse.parse(const.CLIENT_MOVE_BACK)
+            args.func(args)
+        else:
+            try:
+                args = arg_parse.parse(recv.split())
+                args.func(args)
+            except:
+                pass
+        
         return 0
 
 if __name__ == "__main__":
 
-    print("Please connect to UAV first.")
+    """print("Please connect to UAV first.")
     while True:
         msg = input(" -> ")
         try:
@@ -64,7 +79,9 @@ if __name__ == "__main__":
                 break
         except ConnectionError:
             print("connection_error")
-            sys.exit(1)
+            sys.exit(1)"""
+
+    control.connect(["udp", "127.0.0.1", "14551"])
 
     try:
         _client = Client()

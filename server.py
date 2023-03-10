@@ -1,8 +1,10 @@
 import arg_parse
 import sys
+import const
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 from ctl import control
+
 
 
 
@@ -53,20 +55,37 @@ class Server:
         while True:
             msg = input(" [Server]: -> ")
             self.broadcast(bytes(msg, "utf8"))
-            error_code = self.handle_args(msg.split())
+            error_code = self.handle_args(msg)
             if error_code != 0:
                 break
 
     def handle_args(self, input):
-        try:
-            args = arg_parse.parse(input)
+        if not input:
+            return 0
+        
+        rs = input.split()
+        if rs[0] == "mf":
+            args = arg_parse.parse(const.SERVER_MOVE_FORWORD)
             args.func(args)
-        except control.ControlError:
-            pass
+        elif rs[0] == "mo":
+            args = arg_parse.parse(const.SERVER_MOVE_ORIGIN)
+            args.func(args)
+        elif rs[0] == "mb":
+            args = arg_parse.parse(const.SERVER_MOVE_BACK)
+            args.func(args)
+        else:
+            try:
+                args = arg_parse.parse(rs)
+                args.func(args)
+            except:
+                pass
         return 0
 
-    def broadcast(self, msg, prefix="") -> None:  # prefix is for name identification.
-        for sock in list(self.clients.keys()): # using list to avoid arise RuntimeError: dictionary changed size during iteration.
+
+    # prefix is for name identification.
+    # using list to avoid arise RuntimeError: dictionary changed size during iteration.
+    def broadcast(self, msg, prefix="") -> None:  
+        for sock in list(self.clients.keys()): 
             try:
                 sock.send(bytes(prefix, "utf8")+msg)
             except ConnectionError:
@@ -85,6 +104,8 @@ if __name__ == "__main__":
         except ConnectionError:
             print("connection_error")
             sys.exit(1)
+    
+    # control.connect(["udp", "127.0.0.1", "14550"])
         
     server = Server()
     server.start("0.0.0.0", 5566)

@@ -27,9 +27,6 @@ def parse(args):
     
     parser_move = subparser.add_parser("move", help="Make UAV moving [North/South, East/West, Down/Up] in local coord.")
     parser_move.add_argument("movement", type=int, nargs='+', help="Move [east/west] [north/south] [down/up] for meters")
-    parser_move.add_argument("-e", "--east", type=int, default=0, help="Move east/west for n meters.")
-    parser_move.add_argument("-n", "--north", type=int, default=0, help="Move north/south for n meters.")
-    parser_move.add_argument("-d", "--down", type=int, default=0, help="Move down/Up for n meters.")
     parser_move.set_defaults(func=control.move)
 
     return parser.parse_args(args)

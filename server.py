@@ -5,9 +5,6 @@ from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 from ctl import control
 
-
-
-
 class Server:
     def __init__(self, buffer=1024) -> None:
         self.server = socket(AF_INET, SOCK_STREAM)
@@ -105,7 +102,7 @@ if __name__ == "__main__":
             print("connection_error")
             sys.exit(1)
     
-    # control.connect(["udp", "127.0.0.1", "14550"])
+    control.connect(["udp", "127.0.0.1", "14550"])
         
     server = Server()
-    server.start("0.0.0.0", 5566)
+    server.start(const.SERVER_HOST_BIND, const.SERVER_PORT)

@@ -7,8 +7,6 @@ from socket import socket, AF_INET, SOCK_STREAM
 from ctl import control
 
 
-
-
 class Client:
     def __init__(self, buffer=1024) -> None:
         self.client = socket(AF_INET, SOCK_STREAM)
@@ -70,7 +68,7 @@ class Client:
 
 if __name__ == "__main__":
 
-    """print("Please connect to UAV first.")
+    print("Please connect to UAV first.")
     while True:
         msg = input(" -> ")
         try:
@@ -79,13 +77,13 @@ if __name__ == "__main__":
                 break
         except ConnectionError:
             print("connection_error")
-            sys.exit(1)"""
+            sys.exit(1)
 
-    control.connect(["udp", "127.0.0.1", "14551"])
+    #control.connect(["udp", "127.0.0.1", "14551"])
 
     try:
         _client = Client()
-        _client.start("127.0.0.1", 5566)
+        _client.start(const.CLIENT_HOST, const.CLIENT_PORT)
         _client.receive()
     except ConnectionRefusedError:
         print("connection_refused.")

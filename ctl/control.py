@@ -1,4 +1,7 @@
+from enum import Enum
+import math
 from pymavlink import mavutil
+
 import time
 
 
@@ -11,7 +14,13 @@ class ControlError(Exception):
     # __str__ is to print() the value
     def __str__(self):
         return(repr(self.value))
-
+    
+class Movement(Enum):
+    NORTH = 1,
+    SOUTH = 2,
+    WEST = 3,
+    EAST = 4 
+    
 
 def connect(args, retry=3) -> str:
     global master
@@ -104,9 +113,45 @@ def set_mode(args) -> None:
         break
 
 def move(args) -> None:
-    master.mav.send(mavutil.mavlink.MAVLink_set_position_target_local_ned_message(10, master.target_system, \
+    
+    loc = master.location()
+    
+    # Local
+    """master.mav.send(mavutil.mavlink.MAVLink_set_position_target_local_ned_message(10, master.target_system, \
         master.target_component, mavutil.mavlink.MAV_FRAME_LOCAL_NED, \
-            int(0b010111111000), args.movement[0], args.movement[1], args.movement[2], 0, 0, 0, 0, 0, 0, 0, 0))
+            int(0b010111111000), args.movement[0], args.movement[1], args.movement[2], 0, 0, 0, 0, 0, 0, 0, 0))"""
+    # Global
+    # move to north
+    
+    if args.movement == 0:
+            master.mav.send(mavutil.mavlink.MAVLink_set_position_target_global_int_message(
+        10, 
+        master.target_system, master.target_component, 
+        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, 
+        int(0b110111111000),
+        int(loc.lat*1e7)+5000,
+        int(loc.lng*1e7),
+        10, 
+        0, 0, 0,
+        0, 0, 0,
+        1.57, 0.5
+        ))
+    elif args.movement == 1:
+        master.mav.send(mavutil.mavlink.MAVLink_set_position_target_global_int_message(
+        10, 
+        master.target_system, master.target_component, 
+        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, 
+        int(0b110111111000),
+        int(loc.lat*1e7)-5000,
+        int(loc.lng*1e7),
+        10, 
+        0, 0, 0,
+        0, 0, 0,
+        1.57, 0.5
+        ))
+
+  
+        
     
     while True:
         msg = master.recv_match(
@@ -114,4 +159,6 @@ def move(args) -> None:
         print(msg)
         break
 
-
+def stop_all(args):
+    master.mav.set_mode_send(master.target_system, \
+        mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 17)

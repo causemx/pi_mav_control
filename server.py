@@ -14,7 +14,7 @@ class Server:
 
     def start(self, host="localhost", port=5566):
         try:
-            self.server.bind((host, port))
+             self.server.bind((host, port))
         except ConnectionError as err:
             print("Encounting connection error: {}".format(str(err)))
 
@@ -59,23 +59,11 @@ class Server:
     def handle_args(self, input):
         if not input:
             return 0
-        
-        rs = input.split()
-        if rs[0] == "mf":
-            args = arg_parse.parse(const.SERVER_MOVE_FORWORD)
+        try:
+            args = arg_parse.parse(input.split())
             args.func(args)
-        elif rs[0] == "mo":
-            args = arg_parse.parse(const.SERVER_MOVE_ORIGIN)
-            args.func(args)
-        elif rs[0] == "mb":
-            args = arg_parse.parse(const.SERVER_MOVE_BACK)
-            args.func(args)
-        else:
-            try:
-                args = arg_parse.parse(rs)
-                args.func(args)
-            except:
-                pass
+        except:
+            pass
         return 0
 
 
@@ -102,7 +90,8 @@ if __name__ == "__main__":
             print("connection_error")
             sys.exit(1)
     
-    control.connect(["udp", "127.0.0.1", "14550"])
+    
+    #control.connect(["udp", "127.0.0.1", "14550"])
         
     server = Server()
     server.start(const.SERVER_HOST_BIND, const.SERVER_PORT)

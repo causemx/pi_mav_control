@@ -1,35 +1,29 @@
-import sys
-import arg_parse
-from ctl import control
+from pymavlink import mavutil
 
 
 class ControlError(Exception):
     pass
 
-def main(input) -> int:
-    try:
-        args = arg_parse.parse(input)
-        args.func(args)
-    except ControlError:
-        pass
-    return 0
-
 
 if __name__ == "__main__":
-    while True:
-        msg = input(" -> ")
-        try:
-            ret = control.connect(msg.split())
-            print(ret)
-            if ret == 'connected':
-                break
-        except ConnectionError:
-            print("connection_error")
-            sys.exit(1)
-            
-    while True:
-        msg = input(" -> ")
-        error_code = main(msg.split())
-        if error_code != 0:
-            break
+    master = mavutil.mavlink_connection('udpin:{}:{}'.format("127.0.0.1", 14550))
+    master.wait_heartbeat()
 
+    
+    master.mav.set_mode_send(master.target_system, \
+        mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 17)
+    
+    # Change global location 
+    """loc = master.location()
+    master.mav.send(mavutil.mavlink.MAVLink_set_position_target_global_int_message(
+        10, 
+        master.target_system, master.target_component, 
+        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, 
+        int(0b110111111000),
+        int(loc.lat*1e7)-5000,
+        int(loc.lng*1e7),
+        10, 
+        0, 0, 0,
+        0, 0, 0,
+        1.57, 0.5
+        ))"""
